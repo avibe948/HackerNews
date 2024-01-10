@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="HackerNewsAPI.Tests"/>
+    <InternalsVisibleTo Include="HackerNewsAPI.Tests" />
   </ItemGroup>
 
 

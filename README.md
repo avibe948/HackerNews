@@ -57,7 +57,7 @@ any enhancements or changes you would make, given the time
 
 
 AppSettings Example : 
- "HackerNewsApiSettings": {
+ "HackerNewsStoryProviderSettings": {
    "BestStoriesUrl": "https://hacker-news.firebaseio.com/v0/beststories.json",
    "StoryDetailsUrl": "https://hacker-news.firebaseio.com/v0/item/",
    "BestStoryIdsCacheExpiration": 600,
@@ -70,7 +70,13 @@ AppSettings Example :
  StoryDetailsUrl: The URL of the story details 
  BestStoryIdsCacheExpiration: BestStoryIds Cache Expiration policy in seconds 
  StoryDetailsCacheExpiration StoryDetails Cache Expiration policy in seconds 
- ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume that the stories returned from the url call to Hacker news are sorted 
+ 
+ "HackerNewsApiSettings": {
+   "HackerNewsStoryProviderSettings": {"$ref": "#/HackerNewsStoryProviderSettings"},
+   "ForceReSortBestStoryIds": false 
+ }
+
+ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume that the stories returned from the url call to Hacker news are sorted 
       (Looking at the reponse of the Hacker news BestStoriesUrl the returned json appears to be  sorted already by the highest score so there may be no need to re-sort , 
      hence this flag allows to avoid double sorting)
 

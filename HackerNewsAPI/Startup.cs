@@ -1,10 +1,12 @@
 using System.Net.Http;
 using HackerNewsAPI.Domain;
+using HackerNewsAPI.Providers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace HackerNewsAPI
 {
@@ -25,7 +27,20 @@ namespace HackerNewsAPI
             services.AddHttpClient();
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+            services.Configure<HackerNewsStoryProviderSettings>(Configuration.GetSection(nameof(HackerNewsStoryProviderSettings)));
             services.Configure<HackerNewsApiSettings>(Configuration.GetSection(nameof(HackerNewsApiSettings)));
+
+            services.AddLogging(loggingBuilder =>
+            {
+                // Use the configuration from appsettings.json
+                loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
+
+                // Add other logging providers if needed, such as Console, Debug, etc.
+                loggingBuilder.AddConsole();
+            });
+            // Register the HackerNewsStoryProvider as the implementation for IStoryProvider
+            services.AddScoped<IStoryProvider, HackerNewsStoryProvider>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

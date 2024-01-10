@@ -1,12 +1,10 @@
-﻿namespace HackerNewsAPI.Domain
+﻿
+namespace HackerNewsAPI.Domain
 {
-    public class Story
-    {
-        public string Title { get; set; }
-        public string Uri { get; set; }
-        public string PostedBy { get; set; }
-
-
-    }
+    public enum StoryType {Story}
+    public record Story(string By, int Descendants,
+        int Id, int[] Kids, int Score, long Time, 
+        string Title, string type, string Url);
+    
 
 }

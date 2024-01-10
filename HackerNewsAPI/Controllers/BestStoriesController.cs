@@ -16,15 +16,15 @@ namespace HackerNewsAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StoriesController : ControllerBase
+    public class BestStoriesController : ControllerBase
     {
         private readonly HttpClient _httpClient;
         private readonly HackerNewsApiSettings _apiSettings;
-        private readonly ILogger<StoriesController> _logger;
+        private readonly ILogger<BestStoriesController> _logger;
         private readonly IMemoryCache _cache;
         static readonly string BestStoriesCacheKey = "BestStories";
 
-        public StoriesController(ILogger<StoriesController> logger, IHttpClientFactory httpClientFactory, IOptions<HackerNewsApiSettings> apiSettings, IMemoryCache cache)
+        public BestStoriesController(ILogger<BestStoriesController> logger, IHttpClientFactory httpClientFactory, IOptions<HackerNewsApiSettings> apiSettings, IMemoryCache cache)
         {
             _httpClient = httpClientFactory.CreateClient();
             _apiSettings = apiSettings.Value;
@@ -34,7 +34,7 @@ namespace HackerNewsAPI.Controllers
         /// <summary>
         /// An Http Get endpoint which takes an integer : numberOfTopStories (N) and returns the story details of the top N best stories (sorted by the highest score first)
         /// </summary>
-        /// <param name="numberOfTopStories">Integer that represents how many highest score stories you wish to retreive. For example 3 will return , the 3 heighst scores</param>
+        /// <param name="numberOfTopStories">Integer that represents how many highest score stories you wish to retreive. For example 3 will return , the 3 highest scores</param>
         /// <returns></returns>
         [HttpGet("{numberOfTopStories}")]
         public async Task<ActionResult<IEnumerable<Story>>> GetBestStories(int numberOfTopStories)
@@ -66,22 +66,17 @@ namespace HackerNewsAPI.Controllers
         /// The values of the best stories are cached. The cache expiration policy can be specified in the app service configuration. 
         /// </summary>
         /// <returns>A list of story id integers</returns>
-        private async Task<List<int>> GetBestStoriesIds()
+        internal async Task<List<int>> GetBestStoriesIds()
         {
-
             if (!_cache.TryGetValue(BestStoriesCacheKey, out List<int> bestStoriesIds))
             {
-
                 var response = await _httpClient.GetFromJsonAsync<List<int>>(_apiSettings.BestStoriesUrl);
-
                 // cache entry expiration policy
                 var cacheEntryOptions = new MemoryCacheEntryOptions
                 {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_apiSettings.BestStoryIdsCacheExpiration) // Set your desired cache duration in the app settings. 
                 };
-
                 _cache.Set(BestStoriesCacheKey, response, cacheEntryOptions);
-
                 return response;
             }
 
@@ -95,7 +90,7 @@ namespace HackerNewsAPI.Controllers
         /// <param name="storyIds"> a list of story ids</param>
         /// <returns>An IEnumerable of story details </returns>
 
-        private async Task<IEnumerable<Story>> GetStoriesDetails(IEnumerable<int> storyIds)
+        internal async Task<IEnumerable<Story>> GetStoriesDetails(IEnumerable<int> storyIds)
         {
             if(storyIds == null || !storyIds.Any()) return Enumerable.Empty<Story>();
 

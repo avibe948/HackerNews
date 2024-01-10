@@ -101,6 +101,8 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+.vs/**/**/*
+.vs/
 
 # Chutzpah Test files
 _Chutzpah*
@@ -398,5 +400,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
 # End of https://www.toptal.com/developers/gitignore/api/csharp

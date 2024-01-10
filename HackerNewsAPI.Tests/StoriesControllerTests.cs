@@ -20,6 +20,7 @@ namespace HackerNewsAPI.Tests
         [Fact]
         public async Task SholdReturnGetBestStoriesIdsAndCacheResults()
         {
+            HackerNewsApiSettings settings = GetAppSettings();
 
             var expectedBestStoryIds = new int[] { 21233041, 21233229, 21232873, 21233237, 21233211 };
             Mock<HttpMessageHandler> mockHttpMessageHandler = GetMockedHttpHandlerForStoryIds(expectedBestStoryIds);
@@ -31,14 +32,7 @@ namespace HackerNewsAPI.Tests
 
             var cache = new MemoryCache(new MemoryCacheOptions());
             var apiSettingsMock = new Mock<IOptions<HackerNewsApiSettings>>();
-            apiSettingsMock.SetupGet(_ => _.Value).Returns(new HackerNewsApiSettings
-            {
-                BestStoriesUrl = "https://mocked.url/beststories.json",
-                StoryDetailsUrl = "https://mocked.url/item/",
-                BestStoryIdsCacheExpiration = 600,
-                ForceReSortBestStoryIds = false,
-                StoryDetailsCacheExpiration = 600,
-            });
+            apiSettingsMock.SetupGet(_ => _.Value).Returns(settings);
 
             var controller = new BestStoriesController(loggerMock.Object, httpClientFactoryMock.Object, apiSettingsMock.Object, cache);
 
@@ -48,13 +42,25 @@ namespace HackerNewsAPI.Tests
             Assert.NotEmpty(actualStoriesIds);
             Assert.Equal(5, actualStoriesIds.Count());
             Assert.Equal(expectedBestStoryIds, actualStoriesIds);
-            
+
 
             // Verify indirectly if caching occurred by checking if a method that uses Set is invoked
             var cachedStories = cache.Get("BestStories");
 
             Assert.NotNull(cachedStories);
             Assert.Equivalent(cachedStories, actualStoriesIds, true);
+        }
+
+        private static HackerNewsApiSettings GetAppSettings()
+        {
+            return new HackerNewsApiSettings
+            {
+                BestStoriesUrl = "https://mocked.url/beststories.json",
+                StoryDetailsUrl = "https://mocked.url/item/",
+                BestStoryIdsCacheExpiration = 600,
+                ForceReSortBestStoryIds = false,
+                StoryDetailsCacheExpiration = 600,
+            };
         }
 
         private static Mock<HttpMessageHandler> GetMockedHttpHandlerForStoryIds<T>(T obj)
@@ -82,20 +88,15 @@ namespace HackerNewsAPI.Tests
         {
             // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            Story story = GetStories().First();
+            StoryDetailResponseDto[] expectedStoriesDetailsResponseDtos = GetStories().Select(story => story.MapStoryHackerNewsToResponseDto()).ToArray();
+            string[] expectedStoryDetailsAsJsonString = expectedStoriesDetailsResponseDtos.Select(x => JsonSerializer.Serialize(x)).ToArray();
 
-            string storyJsonString = JsonSerializer.Serialize(story);
+            var settings = GetAppSettings();
 
-            var storyDetailsStringContent = new NonDisposingJsonStringContent(storyJsonString);
-            var httpResponseMessage = new HttpResponseMessage
+            for (int i = 0; i < expectedStoriesDetailsResponseDtos.Count(); i++)
             {
-                StatusCode = HttpStatusCode.OK,
-                Content = storyDetailsStringContent
-            };
-
-            mockHttpMessageHandler.Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(httpResponseMessage);
+                SetupMockedStoryDetailMessageHandler(settings, mockHttpMessageHandler, expectedStoriesDetailsResponseDtos[i].Id, expectedStoryDetailsAsJsonString[i]);
+            }
 
             var httpClient = new HttpClient(mockHttpMessageHandler.Object);
             var httpClientFactoryMock = new Mock<IHttpClientFactory>();
@@ -104,39 +105,29 @@ namespace HackerNewsAPI.Tests
 
             var cache = new MemoryCache(new MemoryCacheOptions());
             var apiSettingsMock = new Mock<IOptions<HackerNewsApiSettings>>();
-            apiSettingsMock.SetupGet(_ => _.Value).Returns(new HackerNewsApiSettings
-            {
-                BestStoriesUrl = "https://mocked.url/beststories.json",
-                StoryDetailsUrl = "https://mocked.url/item/",
-                BestStoryIdsCacheExpiration = 600,
-                ForceReSortBestStoryIds = false,
-                StoryDetailsCacheExpiration = 600,
-            });
+            apiSettingsMock.SetupGet(_ => _.Value).Returns(settings);
 
             var controller = new BestStoriesController(loggerMock.Object, httpClientFactoryMock.Object, apiSettingsMock.Object, cache);
 
-            var storyIds = new int[] { story.Id };
+            var storyIds = expectedStoriesDetailsResponseDtos.Select(x => x.Id);
+
             // Act
-            var storyDetails = await controller.GetStoriesDetails(storyIds);
+            var actualStoriesDetails = await controller.GetStoriesDetails(storyIds);
 
-            Assert.NotEmpty(storyDetails);
-            Assert.Equal(1, storyDetails.Count());
+            Assert.NotEmpty(actualStoriesDetails);
+            Assert.Equal(2, actualStoriesDetails.Count());
 
-            var storyDetail = storyDetails.First();
+            foreach (var storyDetail in actualStoriesDetails)
             {
-                Assert.Equal(storyDetail.Id, story.Id);
-                Assert.Equal(storyDetail.Title, story.Title);
-                Assert.Equal(storyDetail.Score, story.Score);
-                Assert.Equal(storyDetail.Type, story.Type);
-                Assert.Equal(storyDetail.Url, story.Url);
+
+                Assert.Equal(storyDetail.Id, storyDetail.Id);
 
                 // Verify indirectly if caching occurred by checking if a method that uses Set is invoked
-                var cachedStoryDetails = cache.Get<Story>($"Story_{storyDetail.Id}");
-
+                var cachedStoryDetails = cache.Get<StoryDetailResponseDto>($"Story_{storyDetail.Id}");
                 Assert.NotNull(cachedStoryDetails);
                 Assert.Equal(cachedStoryDetails, storyDetail);
-
             }
+            
         }
         [Fact]
         public async Task GetBestStories_CachesData()
@@ -152,19 +143,21 @@ namespace HackerNewsAPI.Tests
 
             // Arrange
             var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-            var bestStoryIds = new[] { 21233041, 21233229 };
+            var expectedStoriesDetails = GetStories();
+
+            var bestStoryIds = expectedStoriesDetails.Select(x => x.Id).ToArray();
             var bestStoriesIdsResponseContent = JsonSerializer.Serialize(bestStoryIds);
-            IEnumerable<string> storyDetailsAsJson = GetStories().Select(story => JsonSerializer.Serialize<Story>(story));
+            IEnumerable<string> storyDetailsAsJson = expectedStoriesDetails.Select(story => JsonSerializer.Serialize<StoryHackerNewsDto>(story));
 
             mockHttpMessageHandler.Protected()
-         .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(req =>
-             req.RequestUri.AbsoluteUri == settings.BestStoriesUrl),
-             ItExpr.IsAny<CancellationToken>())
-         .ReturnsAsync(new HttpResponseMessage
-         {
-             StatusCode = HttpStatusCode.OK,
-             Content = new NonDisposingJsonStringContent(bestStoriesIdsResponseContent)
-         });
+             .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.Is<HttpRequestMessage>(req =>
+                 req.RequestUri.AbsoluteUri == settings.BestStoriesUrl),
+                 ItExpr.IsAny<CancellationToken>())
+             .ReturnsAsync(new HttpResponseMessage
+             {
+                 StatusCode = HttpStatusCode.OK,
+                 Content = new NonDisposingJsonStringContent(bestStoriesIdsResponseContent)
+             });
 
             // Setup for Story Details request
             SetupMockedStoryDetailMessageHandler(settings, mockHttpMessageHandler, bestStoryIds.First(), storyDetailsAsJson.First());
@@ -186,19 +179,28 @@ namespace HackerNewsAPI.Tests
 
             // Assert
             var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
-            var stories = Assert.IsAssignableFrom<IEnumerable<Story>>(okObjectResult.Value);
+            var stories = Assert.IsAssignableFrom<IEnumerable<StoryDetailResponseDto>>(okObjectResult.Value);
             Assert.Equal(2, stories.Count());
 
             // Verify indirectly if caching occurred by checking if a method that uses Set is invoked
             var cachedStories = cache.Get<IEnumerable<int>>("BestStories");
-            Assert.Equal(cachedStories, stories.Select(x => x.Id));
+        
+            Assert.Equal(cachedStories, bestStoryIds);
+
+            // check story details is stored in the cache : 
+            foreach (var storyId in bestStoryIds)
+            {
+                var cachedStoryDetails = cache.Get<StoryDetailResponseDto>($"Story_{storyId}");
+                Assert.Equal(expectedStoriesDetails.First(x => x.Id == storyId).MapStoryHackerNewsToResponseDto(), cachedStoryDetails); 
+            }
+
         }
 
-        private Story[] GetStories()
+        private StoryHackerNewsDto[] GetStories()
         {
             return new[]
             {
-                new Story
+                new StoryHackerNewsDto
                 {
                     By = "ismaildonmez",
                     Descendants = 588,
@@ -210,7 +212,7 @@ namespace HackerNewsAPI.Tests
                     Type = StoryType.Story,
                     Url = "https://github.com/uBlockOrigin/uBlock-issues/issues/745"
                 },
-                new Story
+                new StoryHackerNewsDto
                 {
                     By = "fadfdafa",
                     Descendants = 645,

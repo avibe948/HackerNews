@@ -88,135 +88,37 @@ n: Number of top stories to retrieve.
 
 Example: 
 
-Get request URL: http://localhost:10369/api/BestStories/2
+Get request URL: http://localhost:10369/api/BestStories/3
 
 curl -X 'GET' \
-  'http://localhost:10369/api/BestStories/2' \
+  'http://localhost:10369/api/BestStories/3' \
   -H 'accept: text/plain'
 
-Example of a Response when n=2 :
+Example of a Response when n=3 :
 [
   {
-    "by": "todsacerdoti",
-    "descendants": 470,
-    "id": 38923741,
-    "kids": [
-      38924826,
-      38924104,
-      38929516,
-      38924377,
-      38924896,
-      38924596,
-      38929776,
-      38927291,
-      38926317,
-      38925231,
-      38924218,
-      38928391,
-      38924917,
-      38925237,
-      38928179,
-      38924261,
-      38929738,
-      38924904,
-      38924286,
-      38924247,
-      38929719,
-      38927946,
-      38928190,
-      38926177,
-      38927183,
-      38927428,
-      38927584,
-      38926198,
-      38926964,
-      38934212,
-      38928007,
-      38932345,
-      38924172,
-      38924283,
-      38924194,
-      38925642,
-      38924173,
-      38928239,
-      38924181,
-      38928502,
-      38927364,
-      38924941,
-      38930813
-    ],
-    "score": 968,
-    "time": 1704789358,
     "title": "Python 3.13 Gets a JIT",
-    "type": 0,
-    "url": "https://tonybaloney.github.io/posts/python-gets-a-jit.html"
+    "uri": "https://tonybaloney.github.io/posts/python-gets-a-jit.html",
+    "postedBy": "todsacerdoti",
+    "time": 1704789358,
+    "score": 1016,
+    "commentCount": 45
   },
   {
-    "by": "tosh",
-    "descendants": 362,
-    "id": 38920043,
-    "kids": [
-      38920282,
-      38920383,
-      38920484,
-      38920268,
-      38920285,
-      38924407,
-      38922833,
-      38920360,
-      38921826,
-      38920264,
-      38921102,
-      38920530,
-      38923009,
-      38920733,
-      38921523,
-      38923385,
-      38920645,
-      38921810,
-      38920444,
-      38922915,
-      38923644,
-      38920182,
-      38924802,
-      38922942,
-      38920440,
-      38920689,
-      38921348,
-      38921502,
-      38923697,
-      38923294,
-      38920353,
-      38920227,
-      38920935,
-      38926256,
-      38925282,
-      38923400,
-      38925469,
-      38921404,
-      38922322,
-      38922975,
-      38921576,
-      38920820,
-      38926635,
-      38923504,
-      38922968,
-      38925018,
-      38920562,
-      38920785,
-      38921533,
-      38920761,
-      38921043,
-      38920498,
-      38933945,
-      38922908,
-      38920181
-    ],
-    "score": 881,
-    "time": 1704756774,
+    "title": "I pwned half of America's fast food chains simultaneously",
+    "uri": "https://mrbruh.com/chattr/",
+    "postedBy": "MrBruh",
+    "time": 1704843698,
+    "score": 940,
+    "commentCount": 48
+  },
+  {
     "title": "Polars",
-    "type": 0,
-    "url": "https://pola.rs/"
+    "uri": "https://pola.rs/",
+    "postedBy": "tosh",
+    "time": 1704756774,
+    "score": 912,
+    "commentCount": 57
   }
 ]
 
@@ -239,8 +141,9 @@ Contributors
 * Avi Ben-Margi
 
 Improvments required if I had more time:
-- Use DTO objects(Data Transformation object) for story to seperate the representation of the returned json object from Hacker news from the local implementation and the consumer
-  Use Mapperly (faster than Automapper or Mapster and uses less memory) to map from StoryDto to Story domain object. 
+- Consider to store the HackerNews story detail DTO or the HackerNews Story details Model and not the story details respone DTO. using the response DTO allows better performance and thats why I used it but using the hacker news DTO or the model will allow better maintainability should the hacker news api reponses change or different requirements are raised by the user to return different responses. The drawback is that there will be more heap object allocations and garbage collection will make the program slower. 
+-  Use Mapperly (faster than Automapper or Mapster and uses less memory) to map from StoryDto to Story domain object. I used manual mapping using a static util function. In such a small app its ok and provides   
+   best performance.
 - add more unit tests or integration tests to increase code coverage. 
   simulate exception thrown from the HackerNews URLs and return readable human errors. 
 - Return mixed unsorted best stories ids and check that the force re-sort flag works as expected.

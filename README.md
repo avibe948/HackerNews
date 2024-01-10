@@ -146,18 +146,21 @@ Run the following command to execute tests:
 Contributors
 * Avi Ben-Margi
 
-Improvments required if I had more time:
-- Consider to store the HackerNews story detail DTO or the HackerNews Story details Model and not the story details respone DTO. using the response DTO allows better performance and thats why I used it but using the hacker news DTO or the model will allow better maintainability should the hacker news api reponses change or different requirements are raised by the user to return different responses. The drawback is that there will be more heap object allocations and garbage collection will make the program slower. 
--  Use Mapperly (faster than Automapper or Mapster and uses less memory) to map from StoryDto to Story domain object. I used manual mapping using a static util function. In such a small app its ok and provides   
-   best performance.
+Improvments required - if I had more time:
+- Consider to cache the HackerNews story detail DTO or the HackerNews Story details Model and not the story details respone DTO. Storing the response DTO is faster but if new
+ using the response DTO allows better performance and thats why I used it but using the hacker news DTO or the model will allow better maintainability should the hacker news api reponses change or different requirements are raised by the user to return different responses which rely on the original data , we won't have the original HackerAPI response object.
+ The benefit of using the response object is speed because there are less heap object allocations and garbage collection will be faster as we create less objects. 
+-  Use object mapping frameworks and not manual DTO mapping - for example Mapperly (faster than Automapper or Mapster and uses less memory) to map from StoryDto to Story domain object. 
+I used manual mapping using a static util function. In such a small app its ok and provides the best performance.
 - add more unit tests or integration tests to increase code coverage. 
   simulate exception thrown from the HackerNews URLs and return readable human errors. 
-- Return mixed unsorted best stories ids and check that the force re-sort flag works as expected.
 - load testing, performance testing. 
 - Improve exception handling (using middleware)
 - add policies to retry in case of failure to get response from hackernews urls and abort with a clear message to the user.   
 - add circuit breakers to handle abusive clients using middleware. 
 - load balancing 
+- add Unit test Simulate a scenario in which the hacker news API doesn't return sorted best stories and check that the force re-sort flag works as expected.
+- improve logging. I showed example of use in a few places but its not enough. 
 
 License
 This project is licensed under the MIT License.

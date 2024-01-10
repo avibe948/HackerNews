@@ -21,23 +21,7 @@ namespace HackerNewsAPI.Domain
         public string Url { get; init; }
     }
 
-    /// <summary>
-    /// The domain representation of a story
-    /// </summary>
-    public record StoryDetailModel
-    {
-        public required string By { get; init; }
-        public int Descendants { get; init; }
-        public required int Id { get; init; }
-        public required int[] Kids { get; init; }
-        public required int Score { get; init; }
-        public required int Time { get; init; }
-        public required string Title { get; init; }
-        public required StoryType Type { get; init; }
-        public required string Url { get; init; }
-
-    }
-
+    
     /// <summary>
     /// The story response DTO returned from GetBestStories Http Get call of the BestStoriesController
     /// </summary>
@@ -58,4 +42,21 @@ namespace HackerNewsAPI.Domain
     }
 
 
+    /// <summary>
+    /// Not used , but potentially better to use it. See comments in the ReadMe file about it in the "Possible Improvments section" 
+    /// 
+    /// </summary>
+   /* public record StoryDetailModel
+    {
+        public required string By { get; init; }
+        public int Descendants { get; init; }
+        public required int Id { get; init; }
+        public required int[] Kids { get; init; }
+        public required int Score { get; init; }
+        public required int Time { get; init; }
+        public required string Title { get; init; }
+        public required StoryType Type { get; init; }
+        public required string Url { get; init; }
+
+    }*/
 }

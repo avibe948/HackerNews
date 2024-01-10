@@ -19,7 +19,6 @@ namespace HackerNewsAPI.Controllers
     [Route("api/[controller]")]
     public class BestStoriesController : ControllerBase
     {
-        private readonly HttpClient _httpClient;
         private readonly HackerNewsApiSettings _apiSettings;
         private readonly ILogger<BestStoriesController> _logger;
         private readonly IStoryProvider _storyProvider;
@@ -34,11 +33,9 @@ namespace HackerNewsAPI.Controllers
         
         public BestStoriesController(ILogger<BestStoriesController> logger,
                                      IStoryProvider storyProvider,
-                                     IHttpClientFactory httpClientFactory,
                                      IOptions<HackerNewsApiSettings> apiSettings)
         {
             
-            _httpClient = httpClientFactory.CreateClient();
             _apiSettings = apiSettings.Value;
             _logger = logger;
             _storyProvider = storyProvider;
@@ -48,11 +45,8 @@ namespace HackerNewsAPI.Controllers
         public async Task<ActionResult<IEnumerable<StoryDetailResponseDto>>> GetBestStories(int numberOfTopStories)
         {
             _logger.LogDebug($"GetBestStories called with parameter numberOfTopStories = {numberOfTopStories}");
-
-            var bestStoriesIds = await _storyProvider.GetBestStoriesIds();
-
+            var bestStoriesIds = await _storyProvider.GetBestStoriesIdsAsync();
             var stories = await GetBestStoriesDetails(bestStoriesIds, numberOfTopStories);
-
             _logger.LogDebug($"GetBestStories returning {stories.Count()} stories");
             return Ok(stories);
         }
@@ -63,11 +57,13 @@ namespace HackerNewsAPI.Controllers
             if (storyIds == null || !storyIds.Any())
                 return Enumerable.Empty<StoryDetailResponseDto>();
 
-            var bestStories = await _storyProvider.GetStoriesDetails(storyIds.Take(numberOfTopStories));
+            var bestStories = await _storyProvider.GetStoriesDetailsAsync(storyIds.Take(numberOfTopStories));
 
+
+            _logger.LogDebug("ForceReSortBestStoryIds=_apiSettings.ForceReSortBestStoryIds");
             if (_apiSettings.ForceReSortBestStoryIds)
             {
-                var otherBestStories = await _storyProvider.GetStoriesDetails(storyIds.Skip(numberOfTopStories));
+                var otherBestStories = await _storyProvider.GetStoriesDetailsAsync(storyIds.Skip(numberOfTopStories));
                 bestStories = bestStories.Union(otherBestStories).OrderByDescending(story => story.Score).Take(numberOfTopStories).ToList();
             }
 

@@ -6,8 +6,8 @@ namespace HackerNewsAPI.Providers
 {
     public interface IStoryProvider
     {
-        Task<List<int>> GetBestStoriesIds();
+        Task<List<int>> GetBestStoriesIdsAsync();
     
-        Task<IEnumerable<StoryDetailResponseDto>> GetStoriesDetails(IEnumerable<int> storyIds);
+        Task<IEnumerable<StoryDetailResponseDto>> GetStoriesDetailsAsync(IEnumerable<int> storyIds);
     }
 }

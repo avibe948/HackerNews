@@ -33,7 +33,7 @@ namespace HackerNewsAPI.Providers
             _cache = cache ?? throw new NullReferenceException("memory cache must be supplied");
         }
 
-        public async Task<List<int>> GetBestStoriesIds()
+        public async Task<List<int>> GetBestStoriesIdsAsync()
         {
             _logger.LogDebug($"GetBestStoriesIds called");
 
@@ -52,7 +52,7 @@ namespace HackerNewsAPI.Providers
 
             return bestStoriesIds;
         }
-        public async Task<IEnumerable<StoryDetailResponseDto>> GetStoriesDetails(IEnumerable<int> storyIds)
+        public async Task<IEnumerable<StoryDetailResponseDto>> GetStoriesDetailsAsync(IEnumerable<int> storyIds)
         {
             if (storyIds == null || !storyIds.Any())
                 return Enumerable.Empty<StoryDetailResponseDto>();

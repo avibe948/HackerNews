@@ -96,7 +96,7 @@ HackerNewsApiSettings :
 
 
 
-###Endpoints
+### Endpoints
 
 HTTP Get Best Stories
 

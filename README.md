@@ -58,28 +58,41 @@ I was given a task as part of an interview process for a c# developer at a reput
 	
 ### AppSettings: 
 The app settings are in appsettings.json
+	{
+	  "Logging": {
+	    "LogLevel": {
+	      "Default": "Information",
+	      "Microsoft": "Warning",
+	      "Microsoft.Hosting.Lifetime": "Information"
+	    }
+	
+	  },
+	  "HackerNewsStoryProviderSettings": {
+	    "BestStoriesUrl": "https://hacker-news.firebaseio.com/v0/beststories.json",
+	    "StoryDetailsUrl": "https://hacker-news.firebaseio.com/v0/item/",
+	    "BestStoryIdsCacheExpiration": 600,
+	    "StoryDetailsCacheExpiration": 600
+	  },
+	
+	  "HackerNewsApiSettings": {
+	    "ForceReSortBestStoryIds": false
+	  },
+	  "AllowedHosts": "*"
+	
+	}
 
- "HackerNewsStoryProviderSettings": {
-   "BestStoriesUrl": "https://hacker-news.firebaseio.com/v0/beststories.json",
-   "StoryDetailsUrl": "https://hacker-news.firebaseio.com/v0/item/",
-   "BestStoryIdsCacheExpiration": 600,
-   "StoryDetailsCacheExpiration": 600,
- },
+ HackerNewsStoryProviderSettings: 
+ 
+	 BestStoriesUrl:  The Url to get the best story ids     
+	 StoryDetailsUrl: The URL of the story details 
+	 BestStoryIdsCacheExpiration: BestStoryIds Cache Expiration policy in seconds 
+	 StoryDetailsCacheExpiration StoryDetails Cache Expiration policy in seconds 
+	 
+HackerNewsApiSettings : 
 
- 
- "HackerNewsApiSettings": {
-   "ForceReSortBestStoryIds": false 
- }
- 
- BestStoriesUrl:  The Url to get the best story ids     
- StoryDetailsUrl: The URL of the story details 
- BestStoryIdsCacheExpiration: BestStoryIds Cache Expiration policy in seconds 
- StoryDetailsCacheExpiration StoryDetails Cache Expiration policy in seconds 
- 
-
-ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume that the stories returned from the url call to Hacker news are sorted 
-      (Looking at the reponse of the Hacker news BestStoriesUrl the returned json appears to be  sorted already by the highest score so there may be no need to re-sort , 
-     hence this flag allows to avoid double sorting)
+	ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume that the stories returned from the url call to Hacker news are sorted 
+	      (Looking at the reponse of the Hacker news BestStoriesUrl the returned json appears to be  sorted already by the highest score so there may be no need to re-sort , 
+	     hence this flag allows to avoid double sorting)
 
 
 

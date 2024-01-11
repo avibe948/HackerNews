@@ -56,7 +56,7 @@ I was given a task as part of an interview process for a c# developer at a reput
 	   Key in an integer number into the numberOfTopStories and click on Execute. 
 	   You should see the top number of best stories. 
 	
-AppSettings: 
+### AppSettings: 
 The app settings are in appsettings.json
 
  "HackerNewsStoryProviderSettings": {
@@ -83,9 +83,9 @@ ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume 
 
 
 
-Endpoints
+###Endpoints
 
-Get Best Stories
+HTTP Get Best Stories
 
 Endpoint: /api/beststories/{n}
 Method: GET
@@ -101,7 +101,7 @@ curl -X 'GET' \
   'http://localhost:10369/api/BestStories/3' \
   -H 'accept: text/plain'
 
-Example of a Response when n=3 :
+#### Example of a Response when n=3 :
 	[
 	  {
 	    "title": "Python 3.13 Gets a JIT",
@@ -144,10 +144,10 @@ Run the following command to execute tests:
 	```bash
 	dotnet test
 
-Contributors
+### Contributors
 * Avi Ben-Margi
 
-Improvments required - if I had more time:
+### Improvments required - if I had more time:
 - Consider to cache the HackerNews story detail DTO or the HackerNews Story details Model and not the story details respone DTO. Storing the response DTO is faster but if new
  using the response DTO allows better performance and thats why I used it but using the hacker news DTO or the model will allow better maintainability should the hacker news api reponses change or different requirements are raised by the user to return different responses which rely on the original data , we won't have the original HackerAPI response object.
  The benefit of using the response object is speed because there are less heap object allocations and garbage collection will be faster as we create less objects. 
@@ -163,5 +163,5 @@ I used manual mapping using a static util function. In such a small app its ok a
 - add Unit test Simulate a scenario in which the hacker news API doesn't return sorted best stories and check that the force re-sort flag works as expected.
 - improve logging. I showed example of use in a few places but its not enough. 
 
-License
+# License
 	This project is licensed under the MIT License.

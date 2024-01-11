@@ -58,7 +58,7 @@ I was given a task as part of an interview process for a c# developer at a reput
 	
 ### AppSettings: 
 The app settings are in appsettings.json
-	{
+	  
 	  "Logging": {
 	    "LogLevel": {
 	      "Default": "Information",
@@ -79,7 +79,7 @@ The app settings are in appsettings.json
 	  },
 	  "AllowedHosts": "*"
 	
-	}
+	
 
  HackerNewsStoryProviderSettings: 
  

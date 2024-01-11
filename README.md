@@ -9,20 +9,20 @@ I was given a task as part of an interview process for a c# developer at a reput
 	The details for an individual story ID can be retrieved from this URI: https://hacker-news.firebaseio.com/v0/item/21233041.json (in this case for the story with ID
 	21233041 )
 	The API should return an array of the best n stories as returned by the Hacker News API in descending order of score, in the form:
-	[
-	{
-	"title": "A uBlock Origin update was rejected from the Chrome Web Store",
-	"uri": "https://github.com/uBlockOrigin/uBlock-issues/issues/745",
-	"postedBy": "ismaildonmez",
-	"time": "2019-10-12T13:43:01+00:00",
-	"score": 1716,
-	"commentCount": 572
-	},
-	{ ... },
-	{ ... },
-	{ ... },
-	...
-	]
+		[
+		{
+		"title": "A uBlock Origin update was rejected from the Chrome Web Store",
+		"uri": "https://github.com/uBlockOrigin/uBlock-issues/issues/745",
+		"postedBy": "ismaildonmez",
+		"time": "2019-10-12T13:43:01+00:00",
+		"score": 1716,
+		"commentCount": 572
+		},
+		{ ... },
+		{ ... },
+		{ ... },
+		...
+		]
 	In addition to the above, your API should be able to efficiently service large numbers of requests without risking overloading of the Hacker News API.
 	You should share a public repository with us, that should include a README.md file which describes how to run the application, any assumptions you have made, and
 	any enhancements or changes you would make, given the time
@@ -44,38 +44,38 @@ I was given a task as part of an interview process for a c# developer at a reput
 	5. Run the following command to start the application:
 	   ```bash
 	   dotnet run
-   
-   Alternativly you can run it from visual studio 2022 using IIS express. 
+	   
+	   Alternativly you can run it from visual studio 2022 using IIS express. 
+	
+	1. The application will start on the configured port. 
+	   It should open up the browser at 
+	   http://localhost:10369/swagger/index.html   
+	   ( change the port if required) 
+	
+	2. Click on the Get method and then click on the button (Try It Out) to allow editing the numberOfTopStories. 
+	   Key in an integer number into the numberOfTopStories and click on Execute. 
+	   You should see the top number of best stories. 
+	
+AppSettings: 
+The app settings are in appsettings.json
 
-1. The application will start on the configured port. 
-   It should open up the browser at 
-   http://localhost:10369/swagger/index.html   
-   ( change the port if required) 
-
-2. Click on the Get method and then click on the button (Try It Out) to allow editing the numberOfTopStories. 
-   Key in an integer number into the numberOfTopStories and click on Execute. 
-   You should see the top number of best stories. 
-
-
-AppSettings Example : 
  "HackerNewsStoryProviderSettings": {
    "BestStoriesUrl": "https://hacker-news.firebaseio.com/v0/beststories.json",
    "StoryDetailsUrl": "https://hacker-news.firebaseio.com/v0/item/",
    "BestStoryIdsCacheExpiration": 600,
    "StoryDetailsCacheExpiration": 600,
-   "ForceReSortBestStoryIds": false
  },
-    
- BestStoriesUrl:  The Url to get the best story ids
-     
+
+ 
+ "HackerNewsApiSettings": {
+   "ForceReSortBestStoryIds": false 
+ }
+ 
+ BestStoriesUrl:  The Url to get the best story ids     
  StoryDetailsUrl: The URL of the story details 
  BestStoryIdsCacheExpiration: BestStoryIds Cache Expiration policy in seconds 
  StoryDetailsCacheExpiration StoryDetails Cache Expiration policy in seconds 
  
- "HackerNewsApiSettings": {
-   "HackerNewsStoryProviderSettings": {"$ref": "#/HackerNewsStoryProviderSettings"},
-   "ForceReSortBestStoryIds": false 
- }
 
 ForceReSortBestStoryIds: If set to true ,the Stories Controller will not assume that the stories returned from the url call to Hacker news are sorted 
       (Looking at the reponse of the Hacker news BestStoriesUrl the returned json appears to be  sorted already by the highest score so there may be no need to re-sort , 
@@ -102,32 +102,32 @@ curl -X 'GET' \
   -H 'accept: text/plain'
 
 Example of a Response when n=3 :
-[
-  {
-    "title": "Python 3.13 Gets a JIT",
-    "uri": "https://tonybaloney.github.io/posts/python-gets-a-jit.html",
-    "postedBy": "todsacerdoti",
-    "time": 1704789358,
-    "score": 1016,
-    "commentCount": 45
-  },
-  {
-    "title": "I pwned half of America's fast food chains simultaneously",
-    "uri": "https://mrbruh.com/chattr/",
-    "postedBy": "MrBruh",
-    "time": 1704843698,
-    "score": 940,
-    "commentCount": 48
-  },
-  {
-    "title": "Polars",
-    "uri": "https://pola.rs/",
-    "postedBy": "tosh",
-    "time": 1704756774,
-    "score": 912,
-    "commentCount": 57
-  }
-]
+	[
+	  {
+	    "title": "Python 3.13 Gets a JIT",
+	    "uri": "https://tonybaloney.github.io/posts/python-gets-a-jit.html",
+	    "postedBy": "todsacerdoti",
+	    "time": 1704789358,
+	    "score": 1016,
+	    "commentCount": 45
+	  },
+	  {
+	    "title": "I pwned half of America's fast food chains simultaneously",
+	    "uri": "https://mrbruh.com/chattr/",
+	    "postedBy": "MrBruh",
+	    "time": 1704843698,
+	    "score": 940,
+	    "commentCount": 48
+	  },
+	  {
+	    "title": "Polars",
+	    "uri": "https://pola.rs/",
+	    "postedBy": "tosh",
+	    "time": 1704756774,
+	    "score": 912,
+	    "commentCount": 57
+	  }
+	]
 
 Response headers:
 content-type: application/json; charset=utf-8 
@@ -164,4 +164,4 @@ I used manual mapping using a static util function. In such a small app its ok a
 - improve logging. I showed example of use in a few places but its not enough. 
 
 License
-This project is licensed under the MIT License.
+	This project is licensed under the MIT License.

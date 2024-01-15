@@ -39,7 +39,7 @@ namespace HackerNewsAPI
                 loggingBuilder.AddConsole();
             });
             // Register the HackerNewsStoryProvider as the implementation for IStoryProvider
-            services.AddScoped<IStoryProvider, HackerNewsStoryProvider>();
+            services.AddSingleton<IStoryProvider, HackerNewsStoryProvider>();
 
         }
 

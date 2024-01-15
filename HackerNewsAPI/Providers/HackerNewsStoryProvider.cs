@@ -52,6 +52,7 @@ namespace HackerNewsAPI.Providers
 
             return bestStoriesIds;
         }
+
         public async Task<IEnumerable<StoryDetailResponseDto>> GetStoriesDetailsAsync(IEnumerable<int> storyIds)
         {
             if (storyIds == null || !storyIds.Any())
@@ -60,19 +61,19 @@ namespace HackerNewsAPI.Providers
             var tasks = storyIds.Select(async id =>
             {
                 var cacheKey = CacheKeys.GetStoryDetailsCacheKey(id.ToString());
-                if (!_cache.TryGetValue(cacheKey, out StoryDetailResponseDto storyDetailResponseDto))
+                return await _cache.GetOrCreateAsync(cacheKey, async entry =>
                 {
                     var storyHackerNewsDto = await FetchStoryDetails(id);
-                    storyDetailResponseDto = storyHackerNewsDto.MapStoryHackerNewsToResponseDto();
+                    var storyDetailResponseDto = storyHackerNewsDto.MapStoryHackerNewsToResponseDto();
 
-                    await CacheStoryDetails(cacheKey, storyDetailResponseDto);
-                }
-
-                return storyDetailResponseDto;
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_providerSettings.StoryDetailsCacheExpiration);
+                    return storyDetailResponseDto;
+                });
             });
 
             return await Task.WhenAll(tasks);
         }
+
         public async Task<StoryHackerNewsDto> FetchStoryDetails(int id)
         {
             var requestUrl = $"{_providerSettings.StoryDetailsUrl}{id}.json";
@@ -89,14 +90,7 @@ namespace HackerNewsAPI.Providers
                 Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
             });
         }
-        private async Task CacheStoryDetails(string cacheKey, StoryDetailResponseDto storyDetailResponseDto)
-        {
-            var cacheEntryOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_providerSettings.StoryDetailsCacheExpiration)
-            };
-            await Task.Run(() => _cache.Set(cacheKey, storyDetailResponseDto, cacheEntryOptions));
-        }
+ 
 
        
     }
